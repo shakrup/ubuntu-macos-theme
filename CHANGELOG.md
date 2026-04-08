@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0] — обновление
+
+### macos-ubuntu.sh
+- Добавлена установка Dash to Dock вместо ubuntu-dock
+- Прозрачный фон дока (иконки прямо на рабочем столе)
+- Отключение blur для дока в Blur My Shell
+- Кнопки управления окном перенесены влево как в macOS
+
+### nautilus-macos.sh
+- Убраны несуществующие пакеты (nautilus-extension-gnome-terminal, gir1.2-nautilus-4.0)
+- Рабочий CSS для кнопок управления окном в стиле macOS (GTK4)
+- Упрощён CSS боковой панели
+
 ## [1.0.0] — начальный релиз
 
 ### macos-ubuntu.sh
