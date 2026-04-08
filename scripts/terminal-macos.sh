@@ -82,7 +82,7 @@ cat > "$THEME_FILE" << 'EOF'
       "alignment": "left",
       "segments": [
         {
-          "type": "os",
+          "type": "text",
           "style": "plain",
           "foreground": "#6E9FE0",
           "template": "\uf179 "
@@ -93,8 +93,7 @@ cat > "$THEME_FILE" << 'EOF'
           "foreground": "#C5C8C6",
           "properties": {
             "style": "agnoster_short",
-            "max_depth": 3,
-            "folder_separator_icon": " \uE0B1 "
+            "max_depth": 3
           },
           "template": "{{ .Path }}"
         },
@@ -107,10 +106,9 @@ cat > "$THEME_FILE" << 'EOF'
             "{{ if .Staging.Changed }}#E06C75{{ end }}"
           ],
           "properties": {
-            "fetch_status": true,
-            "branch_icon": " \uE0A0 "
+            "fetch_status": true
           },
-          "template": "{{ .BranchIcon }}{{ .HEAD }}{{ if .Working.Changed }} \u00b1{{ end }}{{ if .Staging.Changed }} \u25cf{{ end }}"
+          "template": "  {{ .HEAD }}{{ if .Working.Changed }} ±{{ end }}{{ if .Staging.Changed }} ●{{ end }}"
         },
         {
           "type": "node",
@@ -144,7 +142,7 @@ cat > "$THEME_FILE" << 'EOF'
           "foreground_templates": [
             "{{ if gt .Code 0 }}#E06C75{{ end }}"
           ],
-          "template": "\u276f "
+          "template": "❯ "
         }
       ]
     }
