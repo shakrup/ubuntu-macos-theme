@@ -165,3 +165,40 @@ gsettings reset org.gnome.desktop.wm.preferences button-layout
 # Иконки
 gsettings reset org.gnome.desktop.interface icon-theme
 ```
+
+## Терминал — автокомплит и история
+
+### Установка плагинов
+
+```bash
+sudo apt install -y zsh-autosuggestions zsh-syntax-highlighting
+```
+
+### Добавить в ~/.zshrc после `source $ZSH/oh-my-zsh.sh`
+
+```bash
+# История
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_DUPS
+setopt SHARE_HISTORY
+
+# Стрелки вверх/вниз — поиск по истории
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+
+# Плагины
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+
+```bash
+source ~/.zshrc
+```
+
+`zsh-autosuggestions` — серая подсказка из истории, принять по → или End.
+`zsh-syntax-highlighting` — подсвечивает команды зелёным/красным в реальном времени.
