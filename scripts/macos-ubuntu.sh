@@ -56,8 +56,8 @@ if [ -d ~/.themes ] || [ -d ~/.icons ]; then
     echo "📦 Backup сохранён в $BACKUP_DIR"
 fi
 rm -rf ~/.themes ~/.icons
-sudo apt install --reinstall -y yaru-theme-gtk yaru-theme-icon 2>/dev/null || \
-    echo "⚠️  Пакеты yaru-theme не найдены, пропускаем"
+# Не переустанавливаем системные пакеты — это может сломать зависимости
+echo "⏭️  Системные темы оставляем без изменений"
 echo "✅ Очистка завершена"
 
 # === [3/10] Темы, иконки, курсоры WhiteSur ===
@@ -138,8 +138,35 @@ fi
 # Встроенные расширения Ubuntu
 gnome-extensions enable ubuntu-appindicators@ubuntu.com 2>/dev/null || \
     echo "⚠️  ubuntu-appindicators не найден"
-gnome-extensions enable ubuntu-dock@ubuntu.com 2>/dev/null || \
-    echo "⚠️  ubuntu-dock не найден"
+
+# Dash to Dock — устанавливаем вместо ubuntu-dock
+echo "📦 Установка Dash to Dock..."
+DASHTODOCK_DIR=~/.local/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com
+if [ ! -d "$DASHTODOCK_DIR" ]; then
+    GNOME_VERSION=$(gnome-shell --version 2>/dev/null | grep -oP '\d+' | head -1)
+    DTD_INFO=$(curl -s "https://extensions.gnome.org/extension-info/?uuid=dash-to-dock@micxgx.gmail.com&shell_version=$GNOME_VERSION")
+    DTD_URL=$(echo "$DTD_INFO" | python3 -c \
+        "import sys,json; d=json.load(sys.stdin); print('https://extensions.gnome.org' + list(d['shell_version_map'].values())[-1]['pk'])" \
+        2>/dev/null || true)
+
+    if [ -n "$DTD_URL" ]; then
+        curl -sL "$DTD_URL" -o /tmp/dash-to-dock.zip
+        mkdir -p "$DASHTODOCK_DIR"
+        unzip -q /tmp/dash-to-dock.zip -d "$DASHTODOCK_DIR"
+        rm -f /tmp/dash-to-dock.zip
+        echo "✅ Dash to Dock установлен"
+    else
+        echo "⚠️  Не удалось получить Dash to Dock автоматически"
+        echo "💡 Установите вручную: https://extensions.gnome.org/extension/307/dash-to-dock/"
+    fi
+else
+    echo "⏭️  Dash to Dock уже установлен"
+fi
+
+# Отключаем ubuntu-dock, включаем dash-to-dock
+gnome-extensions disable ubuntu-dock@ubuntu.com 2>/dev/null || true
+gnome-extensions enable dash-to-dock@micxgx.gmail.com 2>/dev/null || \
+    echo "⚠️  Потребуется перезайти в сессию для активации Dash to Dock"
 
 # === [8/10] Системные звуки ===
 echo ""
@@ -191,6 +218,9 @@ gsettings set org.gnome.desktop.wm.preferences titlebar-font \
 
 echo "✅ Темы и шрифты применены"
 
+# Кнопки окна слева как в macOS
+gsettings set org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
+
 # === [10/10] Настройка дока ===
 echo ""
 echo "[10/10] Конфигурация дока..."
@@ -198,10 +228,17 @@ if gsettings list-schemas | grep -q "org.gnome.shell.extensions.dash-to-dock"; t
     gsettings set org.gnome.shell.extensions.dash-to-dock dock-position      'BOTTOM'
     gsettings set org.gnome.shell.extensions.dash-to-dock extend-height      false
     gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed         true
-    gsettings set org.gnome.shell.extensions.dash-to-dock transparency-mode  'FIXED'
-    gsettings set org.gnome.shell.extensions.dash-to-dock background-opacity 0.35
     gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-at-top   false
     gsettings set org.gnome.shell.extensions.dash-to-dock intellihide        false
+    # Прозрачный фон — иконки прямо на рабочем столе
+    gsettings set org.gnome.shell.extensions.dash-to-dock transparency-mode  'FIXED'
+    gsettings set org.gnome.shell.extensions.dash-to-dock customize-alphas   true
+    gsettings set org.gnome.shell.extensions.dash-to-dock min-alpha          0.0
+    gsettings set org.gnome.shell.extensions.dash-to-dock max-alpha          0.0
+    gsettings set org.gnome.shell.extensions.dash-to-dock background-opacity 0.0
+    # Отключаем blur для дока в Blur My Shell
+    gsettings set org.gnome.shell.extensions.blur-my-shell.dash-to-dock blur false \
+        2>/dev/null || true
     echo "✅ Dok настроен"
 else
     echo "⚠️  Расширение dash-to-dock не найдено"
